@@ -97,3 +97,4 @@ create table comentarios (
     foreign key (pub_id) references publicacoes(pub_id),
     foreign key (usu_id) references usuarios(usu_id)
 );
+

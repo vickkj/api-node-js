@@ -1,9 +1,5 @@
 const db = require('../dataBase/connection'); 
 
-const sql = `
-    
-`
-
 
 module.exports = {
     async listarUsuarios(request, response) {
