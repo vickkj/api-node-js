@@ -1,65 +1,34 @@
-const db = require('../dataBase/connection'); 
-
+const db = require('../database/connection');
 
 module.exports = {
     async listarFeedback_consulta(request, response) {
         try {
+            const [resultados] = await db.query(`
+                SELECT 
+                    id,
+                    paciente_id,
+                    psicologo_id,
+                    nota_estrelas,
+                    comentario,
+                    data_feedback
+                FROM feedback_consultas
+                ORDER BY data_feedback DESC
+            `);
+
             return response.status(200).json({
-                sucesso: true, 
-                mensagem: 'Lista de feedback_consulta', 
-                dados: null
+                sucesso: true,
+                mensagem: 'Lista de feedback_consulta',
+                dados: resultados
             });
         } catch (error) {
+            console.error("Erro ao listar feedback:", error);
             return response.status(500).json({
-                sucesso: false, 
-                mensagem: 'Erro na requisição.', 
+                sucesso: false,
+                mensagem: 'Erro na requisição.',
                 dados: error.message
             });
         }
-    }, 
-    async cadastrarFeedback_consulta(request, response) {
-        try {
-            return response.status(200).json({
-                sucesso: true, 
-                mensagem: 'Cadastro de feedback_consulta', 
-                dados: null
-            });
-        } catch (error) {
-            return response.status(500).json({
-                sucesso: false, 
-                mensagem: 'Erro na requisição.', 
-                dados: error.message
-            });
-        }
-    }, 
-    async editarFeedback_consulta(request, response) {
-        try {
-            return response.status(200).json({
-                sucesso: true, 
-                mensagem: 'Alteração no cadastro de feedback_consulta', 
-                dados: null
-            });
-        } catch (error) {
-            return response.status(500).json({
-                sucesso: false, 
-                mensagem: 'Erro na requisição.', 
-                dados: error.message
-            });
-        }
-    }, 
-    async apagarFeedback_consulta(request, response) {
-        try {
-            return response.status(200).json({
-                sucesso: true, 
-                mensagem: 'Exclusão de feedback_consulta', 
-                dados: null
-            });
-        } catch (error) {
-            return response.status(500).json({
-                sucesso: false, 
-                mensagem: 'Erro na requisição.', 
-                dados: error.message
-            });
-        }
-    }, 
-};  
+    },
+
+    // Os outros métodos seguem depois...
+};
