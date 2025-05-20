@@ -1,6 +1,7 @@
 const db = require('../database/connection');
 
 module.exports = {
+    // READ: Listar todos os feedbacks
     async listarFeedback_consulta(req, res) {
         try {
             const [resultados] = await db.query(`
@@ -29,6 +30,7 @@ module.exports = {
         }
     },
 
+    // CREATE: Cadastrar novo feedback
     async cadastrarFeedback_consulta(req, res) {
         try {
             const { psi_id, usu_id, comentario } = req.body;
@@ -61,6 +63,7 @@ module.exports = {
         }
     },
 
+    // UPDATE: Editar comentário do feedback
     async editarFeedback_consulta(req, res) {
         try {
             const { fdbk_id, comentario } = req.body;
@@ -75,7 +78,7 @@ module.exports = {
 
             const [resultado] = await db.query(`
                 UPDATE feedback_consulta
-                SET fdbk_mensagem = ?
+                SET fdbk_mensagem = ?, fdbk_data_hora = NOW()
                 WHERE fdbk_id = ?;
             `, [comentario, fdbk_id]);
 
@@ -94,6 +97,7 @@ module.exports = {
         }
     },
 
+    // DELETE: Excluir feedback
     async apagarFeedback_consulta(req, res) {
         try {
             const { fdbk_id } = req.body;
@@ -107,7 +111,8 @@ module.exports = {
             }
 
             const [resultado] = await db.query(`
-                DELETE FROM feedback_consulta WHERE fdbk_id = ?;
+                DELETE FROM feedback_consulta
+                WHERE fdbk_id = ?;
             `, [fdbk_id]);
 
             return res.status(200).json({
