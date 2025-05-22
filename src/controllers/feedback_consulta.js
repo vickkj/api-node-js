@@ -1,7 +1,6 @@
 const db = require('../database/connection');
 
 module.exports = {
-    // READ: Listar todos os feedbacks
     async listarFeedback_consulta(req, res) {
         try {
             const [resultados] = await db.query(`
@@ -30,7 +29,6 @@ module.exports = {
         }
     },
 
-    // CREATE: Cadastrar novo feedback
     async cadastrarFeedback_consulta(req, res) {
         try {
             const { psi_id, usu_id, comentario } = req.body;
@@ -63,7 +61,6 @@ module.exports = {
         }
     },
 
-    // UPDATE: Editar comentário do feedback
     async editarFeedback_consulta(req, res) {
         try {
             const { fdbk_id, comentario } = req.body;
@@ -97,7 +94,6 @@ module.exports = {
         }
     },
 
-    // DELETE: Excluir feedback
     async apagarFeedback_consulta(req, res) {
         try {
             const { fdbk_id } = req.body;
