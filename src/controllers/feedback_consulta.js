@@ -1,7 +1,7 @@
-const db = require('../database/connection');
+const db = require('../dataBase/connection');
 
 module.exports = {
-    async listarFeedback_consulta(req, res) {
+    async listarFeedback_consulta(request, response) {
         try {
             const [resultados] = await db.query(`
                 SELECT 
@@ -14,14 +14,14 @@ module.exports = {
                 ORDER BY fdbk_data_hora DESC;
             `);
 
-            return res.status(200).json({
+            return response.status(200).json({
                 sucesso: true,
                 mensagem: 'Lista de feedbacks recuperada com sucesso',
                 dados: resultados,
                 total: resultados.length
             });
         } catch (error) {
-            return res.status(500).json({
+            return response.status(500).json({
                 sucesso: false,
                 mensagem: 'Erro ao buscar feedbacks',
                 dados: error.message
@@ -29,12 +29,12 @@ module.exports = {
         }
     },
 
-    async cadastrarFeedback_consulta(req, res) {
+    async cadastrarFeedback_consulta(request, response) {
         try {
-            const { psi_id, usu_id, comentario } = req.body;
+            const { psi_id, usu_id, comentario } = request.body;
 
             if (!psi_id || !usu_id || !comentario) {
-                return res.status(400).json({
+                return response.status(400).json({
                     sucesso: false,
                     mensagem: 'Campos obrigatórios não informados',
                     dados: null
@@ -46,14 +46,14 @@ module.exports = {
                 VALUES (?, ?, ?, NOW());
             `, [psi_id, usu_id, comentario]);
 
-            return res.status(201).json({
+            return response.status(201).json({
                 sucesso: true,
                 mensagem: 'Feedback cadastrado com sucesso',
                 dados: { fdbk_id: resultado.insertId }
             });
 
         } catch (error) {
-            return res.status(500).json({
+            return response.status(500).json({
                 sucesso: false,
                 mensagem: 'Erro ao cadastrar feedback',
                 dados: error.message
@@ -61,45 +61,53 @@ module.exports = {
         }
     },
 
-    async editarFeedback_consulta(req, res) {
+    async editarFeedback_consulta(request, response) {
         try {
-            const { fdbk_id, comentario } = req.body;
+            const { fdbk_id, comentario } = request.body;
 
             if (!fdbk_id || !comentario) {
-                return res.status(400).json({
+                return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'Campos obrigatórios não informados',
+                    mensagem: 'Informe o ID do feedback e o novo comentário.',
                     dados: null
                 });
             }
 
             const [resultado] = await db.query(`
                 UPDATE feedback_consulta
-                SET fdbk_mensagem = ?, fdbk_data_hora = NOW()
-                WHERE fdbk_id = ?;
+                SET fdbk_mensagem = ?
+                WHERE fdbk_id = ?
             `, [comentario, fdbk_id]);
 
-            return res.status(200).json({
+            if (resultado.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: 'Feedback não encontrado para atualização.',
+                    dados: null
+                });
+            }
+
+            return response.status(200).json({
                 sucesso: true,
-                mensagem: 'Feedback atualizado com sucesso',
-                dados: resultado
+                mensagem: 'Comentário atualizado com sucesso!',
+                dados: { fdbk_id, comentario }
             });
 
         } catch (error) {
-            return res.status(500).json({
+            return response.status(500).json({
                 sucesso: false,
-                mensagem: 'Erro ao atualizar feedback',
+                mensagem: 'Erro ao atualizar o comentário.',
                 dados: error.message
             });
         }
     },
 
-    async apagarFeedback_consulta(req, res) {
+    async apagarFeedback_consulta(request, response) {
         try {
-            const { fdbk_id } = req.body;
+            const { fdbk_id } = request.body;
 
             if (!fdbk_id) {
-                return res.status(400).json({
+                return response.status(400).json({
                     sucesso: false,
                     mensagem: 'ID do feedback não informado',
                     dados: null
@@ -107,18 +115,25 @@ module.exports = {
             }
 
             const [resultado] = await db.query(`
-                DELETE FROM feedback_consulta
-                WHERE fdbk_id = ?;
+                DELETE FROM feedback_consulta WHERE fdbk_id = ?
             `, [fdbk_id]);
 
-            return res.status(200).json({
+            if (resultado.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: 'Feedback não encontrado para exclusão.',
+                    dados: null
+                });
+            }
+
+            return response.status(200).json({
                 sucesso: true,
                 mensagem: 'Feedback excluído com sucesso',
                 dados: resultado
             });
 
         } catch (error) {
-            return res.status(500).json({
+            return response.status(500).json({
                 sucesso: false,
                 mensagem: 'Erro ao excluir feedback',
                 dados: error.message
