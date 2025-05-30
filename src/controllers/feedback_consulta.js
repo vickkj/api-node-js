@@ -63,22 +63,23 @@ module.exports = {
 
     async editarFeedback_consulta(request, response) {
         try {
-            const { fdbk_id, comentario } = request.body;
-
-            if (!fdbk_id || !comentario) {
+            const id_feedback = request.params.fdbk_id; // vindo da URL
+            const { comentario } = request.body;        // vindo do corpo da requisição
+    
+            if (!comentario) {
                 return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'Informe o ID do feedback e o novo comentário.',
+                    mensagem: 'O campo "comentario" é obrigatório.',
                     dados: null
                 });
             }
-
+    
             const [resultado] = await db.query(`
                 UPDATE feedback_consulta
                 SET fdbk_mensagem = ?
                 WHERE fdbk_id = ?
-            `, [comentario, fdbk_id]);
-
+            `, [comentario, id_feedback]);
+    
             if (resultado.affectedRows === 0) {
                 return response.status(404).json({
                     sucesso: false,
@@ -86,13 +87,13 @@ module.exports = {
                     dados: null
                 });
             }
-
+    
             return response.status(200).json({
                 sucesso: true,
                 mensagem: 'Comentário atualizado com sucesso!',
-                dados: { fdbk_id, comentario }
+                dados: { fdbk_id: id_feedback, comentario }
             });
-
+    
         } catch (error) {
             return response.status(500).json({
                 sucesso: false,
@@ -104,40 +105,40 @@ module.exports = {
 
     async apagarFeedback_consulta(request, response) {
         try {
-            const { fdbk_id } = request.body;
-
-            if (!fdbk_id) {
+            const id_feedback = request.params.fdbk_id;
+    
+            if (!id_feedback) {
                 return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'ID do feedback não informado',
+                    mensagem: 'O ID do feedback não foi informado.',
                     dados: null
                 });
             }
-
-            const [resultado] = await db.query(`
-                DELETE FROM feedback_consulta WHERE fdbk_id = ?
-            `, [fdbk_id]);
-
+    
+            const comandoSQL = `DELETE FROM feedback_consulta WHERE fdbk_id = ?;`;
+            const [resultado] = await db.query(comandoSQL, [id_feedback]);
+    
             if (resultado.affectedRows === 0) {
                 return response.status(404).json({
                     sucesso: false,
-                    mensagem: 'Feedback não encontrado para exclusão.',
+                    mensagem: `Feedback com ID ${id_feedback} não encontrado.`,
                     dados: null
                 });
             }
-
+    
             return response.status(200).json({
                 sucesso: true,
-                mensagem: 'Feedback excluído com sucesso',
-                dados: resultado
+                mensagem: `Feedback com ID ${id_feedback} excluído com sucesso.`,
+                dados: null
             });
-
-        } catch (error) {
+    
+        } catch (erro) {
             return response.status(500).json({
                 sucesso: false,
-                mensagem: 'Erro ao excluir feedback',
-                dados: error.message
+                mensagem: 'Erro ao excluir o feedback.',
+                dados: erro.message
             });
         }
     }
+    
 };
