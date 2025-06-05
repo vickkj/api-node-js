@@ -139,6 +139,48 @@ module.exports = {
                 dados: erro.message
             });
         }
+    },
+    
+    async ocultarFeedback_consulta(request, response) {
+        try {
+            const id_feedback = request.params.fdbk_id;
+    
+            if (!id_feedback) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'ID do feedback não informado.',
+                    dados: null
+                });
+            }
+    
+            const [resultado] = await db.query(`
+                UPDATE feedback_consulta
+                SET fdbk_ativo = false
+                WHERE fdbk_id = ?;
+            `, [id_feedback]);
+    
+            if (resultado.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Feedback com ID ${id_feedback} não encontrado.`,
+                    dados: null
+                });
+            }
+    
+            return response.status(200).json({
+                sucesso: true,
+                mensagem: `Feedback com ID ${id_feedback} foi ocultado com sucesso.`,
+                dados: null
+            });
+    
+        } catch (erro) {
+            return response.status(500).json({
+                sucesso: false,
+                mensagem: 'Erro ao ocultar o feedback.',
+                dados: erro.message
+            });
+        }
     }
     
+
 };
