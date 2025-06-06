@@ -148,7 +148,7 @@ module.exports = {
             if (!id_feedback) {
                 return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'ID do feedback não informado.',
+                    mensagem: 'O ID do feedback não foi informado.',
                     dados: null
                 });
             }
@@ -170,7 +170,7 @@ module.exports = {
             return response.status(200).json({
                 sucesso: true,
                 mensagem: `Feedback com ID ${id_feedback} foi ocultado com sucesso.`,
-                dados: null
+                dados: { fdbk_id: id_feedback }
             });
     
         } catch (erro) {
